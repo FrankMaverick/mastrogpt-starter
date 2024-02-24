@@ -1,13 +1,28 @@
 #--web true
+import json, requests
+import re
+from pathlib import Path
+
 
 def main(args):
-    
+
+    NOTE = """There is no AI in this chat. Plese select one of:
+
+    - code
+    - message
+    - html
+    - upload
+    - chess
+"""
+
+    output = NOTE
     code = None
     language = None
     chess = None
     message = None
     html = None
-  
+    upload = None
+
     # initialize state
     title =  "MastroGPT Demo"
     try:
@@ -24,8 +39,7 @@ def main(args):
     print("input='%s'" %  input)
 
     if input == "":
-        output = """Welcome, this is MastroGPT demo chat showing what it can display.
-Please select: 'code', 'chess', 'html', 'message'. """
+        output = f"""Welcome, this is MastroGPT demo chat showing what it can display.\n{NOTE}"""
         message = "Watch here for rich output."     
     elif input == "code":
         code = """
@@ -62,8 +76,17 @@ def sum_to(n):
         message = "This is the message."
         title = "This is the title"
         output = "Here is a sample message."
+    elif input == "upload":
+        upload = "Upload your document"
+        output = "Here is your upload form."
+    elif input.startswith("wordpress"):
+        pagenr = input.split(" ")[-1]
+        if pagenr == "wordpress": pagenr = "110"
+        pagejs = json.loads(requests.get(f"https://critical-work.com/wp-json/wp/v2/pages/{pagenr}").content)
+        html = pagejs["content"]["rendered"]
+        output = "Please check the right area."
     else:
-        output =  "No AI here, please type one of 'code', 'chess', 'html', 'message'"
+        output = NOTE
         
     # state is a counter incremented at any invocation
     res = {
@@ -77,5 +100,6 @@ def sum_to(n):
     if chess: res['chess'] = chess
     if code: res['code'] = code
     if html: res['html'] = html
+    if upload: res['upload'] = upload
 
     return { "body": res } 
