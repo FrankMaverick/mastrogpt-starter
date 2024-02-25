@@ -118,7 +118,8 @@ body {
   background: rgb(222, 222, 222); 
   width: 21cm;
   height: 29.7cm;
-  margin: 0 auto;
+  margin: 25px auto;
+  background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
 /* Printing */
@@ -135,11 +136,11 @@ page[size="A4"] {
 }
 
 @page {
-   size: 21cm 29.7cm;
-   padding: 0;
-   margin: 0mm;
-   border: none;
-   border-collapse: collapse;
+  size: 21cm 29.7cm;
+  padding: 0;
+  margin: 0mm;
+  border: none;
+  border-collapse: collapse;
 }
 /* End Printing */
 
@@ -148,6 +149,7 @@ page[size="A4"] {
   flex-direction: row;
   width: 100%;
   height: 100%;
+  box-shadow: 0 15px 15px -5px rgba(0, 0, 0, 0.2);
 }
 
 .leftPanel {
@@ -195,7 +197,6 @@ page[size="A4"] {
 }
 
 .yearsOfExperience {
-  width: 1.6cm;
   display: flex;
   flex-direction: row;
   justify-content: center;

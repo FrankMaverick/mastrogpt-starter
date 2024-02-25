@@ -1,0 +1,81 @@
+@media screen and (max-width: 767.99px) {
+    body {
+        display: block !important;
+    }
+
+    page[size="A4"] {
+        margin: 0 auto;
+        display: block; 
+    }
+}
+
+
+/* Extra Small screen */
+@media screen and (max-width: 575.99px) {
+    body, page[size="A4"] {
+        transform-origin: top left;
+        transform: scale(0.8); 
+        margin: 4px 0 0 15px
+    }
+}
+
+/* Small screen */
+@media (min-width: 576px) and (max-width: 767.99px) {
+    body, page[size="A4"] {
+        transform-origin: top left;
+        transform: scale(0.895); 
+        margin-top: 10px;
+        margin-left: 3vh;
+    }
+
+    body {
+        overflow-x: hidden!important;
+    }
+}
+
+/* Medium screen */
+@media (min-width: 768px) and (max-width: 992.99px) {
+    body, page[size="A4"] {
+        transform-origin: top left;
+        transform: scale(0.95); 
+        margin-top: 10px;
+        margin-left: 10vh;
+    }
+}
+
+/* Large screen */
+@media (min-width: 992px) and (max-width: 1199.99px) {
+    body, page[size="A4"] {
+        transform-origin: top left;
+        transform: scale(0.97); 
+        margin-top: 10px;
+        margin-left: 11vh;
+    }
+}
+
+/* Extra Large screen */
+@media (min-width: 1200px) and (max-width: 1399.99px) {
+    body, page[size="A4"] {
+        transform-origin: top left;
+        transform: scale(0.98); 
+    }
+}
+
+/* Extra extra large screen */
+@media screen and (min-width: 1400px) {
+    body, page[size="A4"] {
+        transform-origin: top left;
+        transform: scale(0.999);
+    }
+}
+
+
+body {
+    /*background-size: 100%; 
+    max-height: 50em;
+    max-width: auto;  */
+    overflow: auto;
+    display: flex;
+    box-sizing: content-box;
+    justify-content: center; 
+}
