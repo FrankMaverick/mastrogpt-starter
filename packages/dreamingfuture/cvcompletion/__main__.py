@@ -4,34 +4,15 @@
 #--param OPENAI_API_HOST $OPENAI_API_HOST
 
 from openai import AzureOpenAI
-import re
-import os
 import chevron
 import json
-from bs4 import BeautifulSoup
 import populate_cv
-
-
-
-
-# ROLE = """
-# You are DreamyBot, Assistant of Dreaming Future.
-# DreamyBot is an intelligent chatbot designed to assist users in crafting professional resumes, 
-# writing compelling cover letters, and preparing for successful job interviews. 
-# As your virtual career advisor, Dreaming Future guides you through the process of 
-# creating personalized documents tailored to your skills, experience, and career goals. 
-# Whether you're a seasoned professional or a recent graduate, 
-# Dreaming Future provides expert guidance and valuable insights to help you stand out in 
-# today's competitive job market. 
-# With its user-friendly interface and advanced AI capabilities, 
-# Dreaming Future simplifies the job application process, e
-# powering you to present yourself effectively and land your dream job.
-# """
+import time
 
 ROLE = """
 Sei un assistente che chiede con gentilezza le informazioni di seguito descritte nel json, campo dati.
 Se l'utente da solo il nome o solo il cognome, chiedi per l'altro campo, fin quando non ricevi tutti i campi che servono e che trovi nel json seguente. 
-Chiedi all'utente se prefisce scrivere tutte le informazioni contemporaneamente e poi tu le adatti, oppure procedere una informazione per volta.
+Chiedi all'utente se prefisce scrivere tutte le informazioni contemporaneamente e poi tu le adatti, oppure procedere poco per volta, su richiesta.
 Ecco i campi:
 - Name: nome e cognome
 - Position: posizione lavorativa
@@ -45,10 +26,10 @@ Ecco i campi:
                             Magari puoi chiedere all'utente le informazioni e ricavarti le skill. Comunque riscrivi per rendere tutto interessante e conforme. Se manca qualcosa, chiedi.
 - Hard Skill: Competenze tecniche e/o professionali. Chiedi se puoi ricavarle dall'esperienze lavorative, oppure se l'utente preferisce elencarle
 - Soft Skill: Abilità, competenze trasversali, attitudini, talenti. Chiedi se puoi ricavarle dall'esperienze lavorative, oppure se l'utente preferisce elencarle
-- Education: Formazione, quindi i titoli acquisiti presso istituti superiori o università, quale istituto e eventualmente gli anni, o l'anno di conseguimento
+- Education: Formazione, quindi i titoli di studio acquisiti presso istituti superiori o università, quale istituto e eventualmente gli anni, o l'anno di conseguimento
 - Lingue: Lingua ed eventuale livello. Quindi Madrelingua o livello QCER (che puoi ricavare in base alle info dell'utente, se non lo specifica) 
 
-Rispondi in json, di seguito rappresentato:
+Rispondi in json, come di seguito rappresentato:
 {
     text: "Grazie Mario Rossi per le informazioni fornite. Puoi vedere la nuova versione del tuo cv aggiornata qui a lato"
     data: {
@@ -87,8 +68,8 @@ Rispondi in json, di seguito rappresentato:
         "soft_skills": [
             "Listening",
             "Fast Learning",
-            "Team Work",
-            "Creativity",
+            "Lavoro di Squadra",
+            "Creatività",
             "Problem Solving"
         ],
         "education": [
@@ -110,16 +91,20 @@ Rispondi in json, di seguito rappresentato:
     }
 }
 
-- Restituisci la sezione dati anche se hai ricevuto un solo campo (es. nome). 
-- La Lunghezza massima della sezione About me deve essere di 400-450 char. Se l'utente inserisce qualcosa di più lungo, accorcialo.
-- La lunghezza massima delle descrizioni di tutte le esperienze lavorative, massimo 5, deve essere di circa 2000 caratteri, per cui cerca di non eccedere, 
-    ed eventualmente riscrivi meglio, avvisando l'utente che il Cv è one page, per cui c'è bisogno di sintetizzare.
+REGOLE:
+- Appena ricevi il primo campo della sezione dati, restituiscilo nella sezione dati. (es. numero di telefono). 
+- Nella sezione dati non aggiungere campi vuoti
+- La Lunghezza massima della sezione Informazioni deve essere di 400-450 char. Se l'utente inserisce qualcosa di più lungo, accorcialo.
+- La lunghezza massima di tutte le esperienze lavorative deve essere di circa 2000 caratteri, per cui cerca di non eccedere, 
+    ed eventualmente riscrivi meglio, avvisando l'utente che il CV è one page, per cui c'è bisogno di sintetizzare.
+- Le esperienze lavorative dividele se possibile, non accorparle se si tratta di diverse company o diverse posizioni. 
+- Non inserire troppe esperienze lavorative, massimo 7, altrimenti non vanno più in un cv one page.
 """
 
 #MODEL = "gpt-35-turbo"
 MODEL = "gpt-4"
 AI = None
-TEMPERATURE = .7
+TEMPERATURE = .4
 RESPONSE_FORMAT={ "type": "json_object" }
 conversation=[{"role": "system", "content": ROLE}]
 cv_template_path = "index.html"
@@ -176,15 +161,17 @@ def main(args):
 
     input = args.get("input", "")
 
+    print('input', input)
+
     html_out = render(cv_template_path, args)
 
     if  input == "":
         return { 
             "body": {
-            "output": "Ciao! Benvenuto su <b>SmartCV AI</b>. Sono qui per aiutarti a compilare il tuo cv che vedi qui a lato.<br> Per questo mi servono alcune informazioni, sei pronto?",
-            "title": "SmartCV AI Chat",
-            #"message": "You can chat with me to create your CV" #, cover letter or prepare for an interview"
-            "html": html_out
+                "output": "Ciao! Benvenuto su <b>SmartCV AI</b>. Sono qui per aiutarti a compilare il tuo cv che vedi qui a lato.<br> Per questo mi servono alcune informazioni, sei pronto?",
+                "title": "SmartCV AI Chat",
+                #"message": "You can chat with me to create your CV" #, cover letter or prepare for an interview"
+                "html": html_out
             } 
         } 
 
@@ -193,11 +180,17 @@ def main(args):
         conversation.append({"role": "user", "content": input})
         print("***conversation", conversation)
         
+        start = time.time()
+        
         res = ask(conversation)
 
-        #print("res", res)
+        end = time.time()
+        print("***CALL TIME:", end - start)
+
         output = extract(res)
-        #trovre il modo di sintetizzare la conversazione con openai
+
+        print("***OUTPUT", output)
+
         conversation.append({"role": "assistant", "content": res})
 
         if output["data"]:
@@ -215,7 +208,6 @@ def main(args):
         return {
             "body": {
                 "output":output["text"],
-                #"html": html_out
             }
     }
 

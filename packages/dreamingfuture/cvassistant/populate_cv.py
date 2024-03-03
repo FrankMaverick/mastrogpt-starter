@@ -1,45 +1,45 @@
-import json
 from bs4 import BeautifulSoup
 
 def update_cv(cv_file_path, json_data):
 
-    if 'name' in json_data:
+    if 'name' in json_data and json_data['name']:
         update_cv_by_id(cv_file_path, json_data['name'], 'name')
-        print(f"Attributo name nel CV aggiornato con successo")
+        print(f"***INFO: Attributo name nel CV aggiornato con successo")
     
-    if 'position' in json_data:
+    if 'position' in json_data and json_data['position']:
         update_cv_by_id(cv_file_path, json_data['position'], 'position')
-        print(f"Attributo position nel CV aggiornato con successo")
+        print(f"***INFO: Attributo position nel CV aggiornato con successo")
 
-    if 'contact' in json_data:
+    if 'contact' in json_data and json_data['contact']:
         contact_info = json_data['contact']
         for field, value in contact_info.items():
-            update_cv_by_id(cv_file_path, value, field)
-        print(f"Attributi contact nel CV aggiornati con successo")
+            if value:
+                update_cv_by_id(cv_file_path, value, field)
+        print(f"***INFO: Attributi contact nel CV aggiornati con successo")
 
-    if 'about_me' in json_data:
+    if 'about_me' in json_data and json_data['about_me']:
         update_cv_by_id(cv_file_path, json_data['about_me'], 'aboutMe')
-        print(f"Attributo about_me nel CV aggiornato con successo")
+        print(f"***INFO: Attributo about_me nel CV aggiornato con successo")
 
-    if 'work_experience' in json_data:
+    if 'work_experience' in json_data and json_data['work_experience']:
         update_cv_experience(cv_file_path, json_data['work_experience'])
-        print(f"Aggiunte Esperienze nel CV con successo")
+        print(f"***INFO: Aggiunte Esperienze nel CV con successo")
 
     if 'hard_skills' in json_data:
         update_cv_skills(cv_file_path, json_data['hard_skills'], 'hardSkill')
-        print(f"Hard Skills nel CV aggiornate con successo")
+        print(f"***INFO: Hard Skills nel CV aggiornate con successo")
 
-    if 'soft_skills' in json_data:
+    if 'soft_skills' in json_data and json_data['soft_skills']:
         update_cv_skills(cv_file_path, json_data['soft_skills'], 'softSkill')
-        print(f"Soft Skills nel CV aggiornate con successo")
+        print(f"***INFO: Soft Skills nel CV aggiornate con successo")
 
-    if 'education' in json_data:
+    if 'education' in json_data and json_data['education']:
         update_cv_education(cv_file_path, json_data['education'])
-        print(f"Aggiunte Lingue nel CV con successo")
+        print(f"Aggiunta Formazione nel CV con successo")
     
-    if 'languages' in json_data:
+    if 'languages' in json_data and json_data['languages']:
         update_cv_languages(cv_file_path, json_data['languages'])
-        print(f"Aggiunte Lingue nel CV con successo")
+        print(f"***INFO: Aggiunte Lingue nel CV con successo")
 
 
 def update_cv_by_id(cv_file_path, value, id_attr):

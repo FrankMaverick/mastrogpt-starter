@@ -8,13 +8,17 @@ def main(arg):
             #     "name": "Demo", 
             #     "url": "mastrogpt/demo",
             # },
-            # {
-            #     "name": "OpenAI",
-            #     "url": "openai/chat"
-            # },
+            {
+                "name": "OpenAI",
+                "url": "openai/chat"
+            },
             { 
-                "name": "SmartCV AI", 
-                "url": "dreamingfuture/cv/template",
+                "name": "SmartCV AI (COM)", 
+                "url": "dreamingfuture/cvcompletion",
+            },
+            { 
+                "name": "SmartCV AI (ASS)", 
+                "url": "dreamingfuture/cvassistant",
             },
         ]
     }
