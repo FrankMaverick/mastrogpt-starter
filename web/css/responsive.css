@@ -47,7 +47,7 @@
 @media (min-width: 992px) and (max-width: 1199.99px) {
     body, page[size="A4"] {
         transform-origin: top left;
-        transform: scale(0.97); 
+        transform: scale(0.97);
         margin-top: 10px;
         margin-left: 11vh;
     }
@@ -79,3 +79,19 @@ body {
     box-sizing: content-box;
     justify-content: center; 
 }
+
+
+
+
+/* DEMO
+@media (min-width: 992px) and (max-width: 1199.99px) {
+    body, page[size="A4"] {
+        transform: scale(0.938)  !important; 
+        margin-top: 14px !important; 
+    }
+
+    body {
+        overflow: hidden;
+    }
+}
+*/

@@ -15,99 +15,30 @@ from pymongo import MongoClient
 
 
 ASSISTANT_ROLE = """
-Sei un assistente che chiede con gentilezza le informazioni di seguito descritte nel json, campo dati.
-Chiedi all'utente le seguenti informazioni utili per compilare il suo CV:
+Sei un assistente che chiede con gentilezza le informazioni di seguito descritte nel json di seguito riportato, oggetto "data".
+COSA FONDAMENTALE IMPORTANTISSIMA: Le informazioni fornite dall'utente inseriscile SEMPRE nel campo data del json.
+
+Chiedi all'utente le seguenti informazioni utili per compilare il suo CV, quali:
 - nome e cognome (name)
 - posizione lavorativa (position)
-- Numero di telefono (contact[phone])
-- indirizzo email (contact[email])
-- indirizzo, basta anche solo la città (contact[address])
-- informazioni (about_me) che descrivono quello che ti piace fare, che ti appassiona e sintetizzano il tuo percorso, anche hobby. 
-    Riscrivilo per renderlo più interessante, specificandolo all'utente. 
+- Contatti: Numero di telefono (contact[phone]) + indirizzo email (contact[email]) + indirizzo, basta anche solo la città (contact[address])
+- informazioni (about_me) che descrivono quello che ti piace fare, che ti appassiona e sintetizzano il tuo percorso, anche hobby.
 - Esperienze professionali (work_experience): esperienze lavorative e relative informazioni, quali posizione, date, 
-                            progetto e/o azienda, una descrizione, e una lista di descrizioni sui vari progetti svolti e infine anche le skill acquisite. 
-                            Magari puoi chiedere all'utente le informazioni e ricavarti le skill. Comunque riscrivi per rendere tutto interessante e conforme. Se manca qualcosa, chiedi.
+                            progetto e/o azienda, una descrizione, e una lista di descrizioni sui vari progetti svolti ed eventualmente anche le skill acquisite. 
 - Competenze tecniche e/o professionali (hard_skills): Chiedi se puoi ricavarle dall'esperienze lavorative, oppure se l'utente preferisce elencarle
 - Abilità, competenze trasversali, attitudini, talenti (soft_skills): Chiedi se puoi ricavarle dall'esperienze lavorative, oppure se l'utente preferisce elencarle
 - Formazione, quindi i titoli di studio acquisiti presso istituti superiori o università, quale istituto e eventualmente gli anni, o l'anno di conseguimento (education)
 - Lingue ed eventuale livello (languages), quindi Madrelingua o livello QCER (che puoi ricavare in base alle info dell'utente, se non lo specifica) 
 
-Rispondi in json, come di seguito rappresentato, quindi con un campo 'text' contenente la risposta testuale per l'utente e un oggetto 'data' con le informazioni fornite dall'utente:
-{
-    text: "Grazie Mario Rossi per le informazioni fornite. Puoi vedere la nuova versione del tuo cv aggiornata qui a lato"
-    data: {
-        "name": "Mario Rossi",
-        "position": "Marketing Manager",
-        "contact": {
-            "phone": "(+33) 777 777 77",
-            "email": "lorem@ipsum.com",
-            "address": "New York, USA",
-        },
-        "about_me": "Lorem ipsum dolor sit amet, consectetur adipiscing elit... ",
-        "work_experience": [
-            {
-                "position": "Accountant",
-                "dates": "Jun 2014 - Sept 2015",
-                "project_company": "Accounting project name | Company name",
-                "description": "Quisque rutrum mollis ornare. In pharetra diam libero, non interdum dui imperdiet quis. Quisque aliquam sapien in libero finibus sodales. Mauris id commodo metus. In in laoreet dolor.",
-                "description_list": [
-                    "Integer commodo ullamcorper mauris, id condimentum lorem elementum sed. Etiam rutrum eu elit ut hendrerit. Vestibulum congue sem ac auctor semper. Aenean quis imperdiet magna.",
-                    "Sed eget ullamcorper enim. Vestibulum consequat turpis eu neque efficitur blandit sed sit amet neque. Curabitur congue semper erat nec blandit."
-                ],
-            "skills": ["Accounting", "Word", "Powerpoint"]
-            },
-            {
-            ...
-            }
-        ],
-        "hard_skills": [
-            "Accounting",
-            "Word",
-            "Powerpoint",
-            "Marketing",
-            "Photoshop",
-            "Management"
-        ],
-        "soft_skills": [
-            "Listening",
-            "Fast Learning",
-            "Team Work",
-            "Creativity",
-            "Problem Solving"
-        ],
-        "education": [
-            {
-                "title": "Bachelor of Economics",
-                "institute": "The University of Sydney",
-                "dates": "2010 - 2014"
-            }
-        ],
-        "languages": [
-            {
-                "name": "Italiano",
-                "level": "Madrelingua"
-            },
-            {
-                "name": "Inglese",
-                "level": "B2"
-            }
-    }
-}
 
-- Salvare ogni informazione fornita dall'utente nel campo data del JSON generato in risposta, aggiornandolo man mano che ricevi nuovi dati.
 - Ad ogni informazione fornita, continua a chiedere le altre info. Puoi anche dire all'utente che il cv è aggiornato e può vederlo a lato.
-- Nella sezione data del json non aggiungere campi vuoti
-- La Lunghezza massima della sezione Informazioni deve essere di 400-450 char. Se l'utente inserisce qualcosa di più lungo, accorcialo.
-- La lunghezza massima di tutte le esperienze lavorative deve essere di circa 2000 caratteri, per cui cerca di non eccedere, 
-    ed eventualmente riscrivi meglio, avvisando l'utente che il CV è one page, per cui c'è bisogno di sintetizzare.
-- Le esperienze lavorative dividele se possibile, non accorparle se si tratta di diverse aziende o diverse posizioni
 """
 
 
 FORMAT_ROLE = """
 Il tuo compito è formattare in json il testo che ricevi, senza inventare nulla.
 Anche se è una domanda, non devi rispondere, ma devi riportare la domanda.
-Il testo in ingresso contiene una parte testuale (in un campo 'text') e alcuni informazioni relative ad un cv (in un campo 'data'), quali:
+Il testo in ingresso contiene una parte testuale, in cui ci sono alcune informazioni relative ad un cv, quali:
 - Name: nome e cognome
 - Position: posizione lavorativa
 - Contact phone: telefono 
@@ -124,7 +55,7 @@ Il testo in ingresso contiene una parte testuale (in un campo 'text') e alcuni i
 - Lingue: Lingua ed eventuale livello. Quindi Madrelingua o livello QCER (che puoi ricavare in base alle info dell'utente, se non lo specifica) 
 
 
-Rispondi in json, come di seguito rappresentato, quindi con il campo 'text' pari a come lo ricevi in ingresso e il campo 'data' con le varie informazioni che ricevi:
+Formatta la risposta e rispondi in json, come di seguito rappresentato, quindi con il campo 'text' corrispondente al messaggio dell'ASSISTANT e il campo 'data' con le varie informazioni che ricevi:
 {
     text: "Grazie Nome e Cognome per le informazioni fornite..."
     data: {
@@ -189,9 +120,11 @@ Rispondi in json, come di seguito rappresentato, quindi con il campo 'text' pari
 IMPORTANTE: popola i valori dell'oggetto 'data' del json solo quando sono presenti i relativi dati. 
 Ad esempio, se l'utente non ha ancora fornitora la 'position', allora questo oggetto sarò vuoto.
 Il campo text invece ce l'hai sempre, quindi devi sempre popolarlo con quello che ricevi in ingresso.
+Non popolare tutto il json, ma solo le informazioni che ricevi nel campo text
 """
 
-ASSISTANT_MODEL = "gpt-4"
+#MODEL = "gpt-35-turbo"
+ASSISTANT_MODEL = "gpt-35-turbo"
 FORMAT_MODEL = "gpt-4"
 AI = None
 TEMPERATURE = .3
@@ -288,7 +221,6 @@ def main(args):
     global assistant
     global AI
     (key, host) = (args["OPENAI_API_KEY"], args["OPENAI_API_HOST"])
-    #AI = AzureOpenAI(api_version="2023-12-01-preview", api_key=key, azure_endpoint=host)
     AI = AzureOpenAI(api_version="2024-02-15-preview", api_key=key, azure_endpoint=host)
 
     #clean collection in mongodb
@@ -365,7 +297,8 @@ def main(args):
             print(f"ASSISTANT: {ass_msg}")
 
             #Format in json with chat.completion ?
-            formatted_output = ask(req(ass_msg))
+            print("Format in json")
+            formatted_output = ask(req("INPUT:"+input+"\n"+"ASSISTANT:"+(ass_msg)))
             print("formatted_output", formatted_output)
 
             output = extract(formatted_output)
@@ -400,7 +333,7 @@ def main(args):
             run = wait_on_run(run, thread_id)
             
             end = time.time()
-            print("***WAIT ON RUN TIME:", end - start)
+            print("***REQ ASSISTANT TIME:", end - start)
 
             # Retrieve messages added by the Assistant to the thread
             all_messages = AI.beta.threads.messages.list(
@@ -413,9 +346,14 @@ def main(args):
             print(f"USER: {message.content[0].text.value}")
             print(f"ASSISTANT: {all_messages.data[0].content[0].text.value}")
             
+            start = time.time()
             #Format in json with chat.completion
-            formatted_output = ask(req(all_messages.data[0].content[0].text.value))
+            #formatted_output = ask(req(all_messages.data[0].content[0].text.value))
+            formatted_output = ask(req("INPUT:"+input+"\n"+"ASSISTANT:"+all_messages.data[0].content[0].text.value))
             print("formatted_output", formatted_output)
+
+            end = time.time()
+            print("***REQ CHAT COMPLETION TIME:", end - start)
 
             output = extract(formatted_output)
 

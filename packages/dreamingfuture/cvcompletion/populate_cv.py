@@ -114,7 +114,7 @@ def update_cv_experience(cv_file_path, experience_data):
 
             p_skills = soup.new_tag('p')
             span_bolded_skills = soup.new_tag('span', **{'class': 'bolded'})
-            span_bolded_skills.string = 'Skills: '
+            span_bolded_skills.string = 'Competenze: '
             p_skills.append(span_bolded_skills)
             span_job_skills = soup.new_tag('span', id=f'jobSkills-{i}')
             skills = ', '.join(job.get('skills', []))
