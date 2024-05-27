@@ -3,6 +3,7 @@
 #--param OPENAI_API_KEY $OPENAI_API_KEY
 #--param OPENAI_API_HOST $OPENAI_API_HOST
 #--param MONGODB_URL $MONGODB_URL
+#--timeout 600000
 
 from openai import AzureOpenAI
 import chevron
@@ -15,7 +16,7 @@ from pymongo import MongoClient
 
 
 ASSISTANT_ROLE = """
-Sei un assistente che chiede con gentilezza le informazioni di seguito descritte nel json di seguito riportato, oggetto "data".
+Sei un assistente che chiede in italiano e con cortesia le informazioni di seguito descritte nel json di seguito riportato, oggetto "data".
 COSA FONDAMENTALE IMPORTANTISSIMA: Le informazioni fornite dall'utente inseriscile SEMPRE nel campo data del json.
 
 Chiedi all'utente le seguenti informazioni utili per compilare il suo CV, quali:
@@ -333,7 +334,7 @@ def main(args):
             run = wait_on_run(run, thread_id)
             
             end = time.time()
-            print("***REQ ASSISTANT TIME:", end - start)
+            print("***ASSISTANT RESPONSE TIME:", end - start)
 
             # Retrieve messages added by the Assistant to the thread
             all_messages = AI.beta.threads.messages.list(
@@ -353,7 +354,7 @@ def main(args):
             print("formatted_output", formatted_output)
 
             end = time.time()
-            print("***REQ CHAT COMPLETION TIME:", end - start)
+            print("***CHAT COMPLETION RESPONSE TIME:", end - start)
 
             output = extract(formatted_output)
 

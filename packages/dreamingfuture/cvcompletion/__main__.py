@@ -2,14 +2,13 @@
 #--kind python:default
 #--param OPENAI_API_KEY $OPENAI_API_KEY
 #--param OPENAI_API_HOST $OPENAI_API_HOST
+#--timeout 600000
 
 from openai import AzureOpenAI
 import chevron
 import json
 import populate_cv
 import time
-
-#Chiedi all'utente se prefisce scrivere tutte le informazioni contemporaneamente e poi tu le adatti, oppure procedere poco per volta, su richiesta.
 
 ROLE = """
 Sei un assistente che chiede con gentilezza le informazioni di seguito descritte nel json, campo dati.
@@ -109,11 +108,8 @@ TEMPERATURE = .4
 RESPONSE_FORMAT={ "type": "json_object" }
 conversation=[{"role": "system", "content": ROLE}]
 cv_template_path = "index.html"
+role_path = "role.txt"
 
-
-# def req(msg):
-#     return [{"role": "system", "content": ROLE}, 
-#             {"role": "user", "content": msg}]
 
 def ask(input):
     comp = AI.chat.completions.create(model=MODEL, 
@@ -148,7 +144,6 @@ def extract(text):
             "text": text,
             "data": {}
         }
-
 
 
 def render(src, args):
@@ -186,7 +181,7 @@ def main(args):
         res = ask(conversation)
 
         end = time.time()
-        print("***CALL TIME:", end - start)
+        print("***RESPONSE TIME:", end - start)
 
         output = extract(res)
 
